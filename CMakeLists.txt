@@ -14,3 +14,4 @@ set (INCLUDE_DIR_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 ## Subdirectories
 ####################################################################################################
 add_subdirectory (src)
+add_subdirectory (test)

@@ -4,6 +4,8 @@
  */
 /**************************************************************************************************/
 
+#include <string.h>
+#include <stdlib.h>
 #include "riff.h"
 
 /**************************************************************************************************/
@@ -25,10 +27,30 @@ riffChunk_t riffChunkCreate()
 
 riffError_t riffAddSubchunk(riffChunk_t *chunk, riffSubChunk_t subChunk)
 {
-    riffSubChunk_t * ???
+    int i;
+    riffSubChunk_t *subCkunksBkp[chunk->numOfSubchunks];
+
+    /* Backup subchunks */
+    for (i = 0; i < chunk->numOfSubchunks; i++) {
+        subCkunksBkp[i] = chunk->subChunks[i];
+    }
+
+    /* Delete allocation for the subchunks pointers */
+    free(chunk->subChunks);
+
+    /* Reallocate memory for the new size */
+    chunk->subChunks = (riffSubChunk_t**) malloc((chunk->numOfSubchunks + 1) * sizeof(riffChunk_t));
+
+    /* Copy back the old subchunks */
+    for(i = 0; i < chunk->numOfSubchunks; i++) {
+        chunk->subChunks[i] = subCkunksBkp[i];
+    }
+
+    /* Allocate and save the new subchunk */
+    chunk->subChunks[i] = (riffSubChunk_t*) malloc(sizeof(riffSubChunk_t));
+    memcpy(chunk->subChunks[i], &subChunk, sizeof(riffSubChunk_t));
 
     return RIFF_ERR_NONE;
 }
-
 
 /**************************************************************************************************/
