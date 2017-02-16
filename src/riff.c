@@ -9,6 +9,23 @@
 #include "riff.h"
 
 /**************************************************************************************************/
+/* RIFF subchunk                                                                                  */
+/**************************************************************************************************/
+
+riffSubChunk_t riffSubChunkCreate(const char id[RIFF_SUBCHUNK_ID_LEN])
+{
+    riffSubChunk_t subchunk;
+
+    memcpy(subchunk.id, id, RIFF_SUBCHUNK_ID_LEN);
+    subchunk.size = 0;
+    subchunk.payload = NULL;
+
+    return subchunk;
+}
+
+/**************************************************************************************************/
+/* RIFF chunk                                                                                     */
+/**************************************************************************************************/
 
 riffChunk_t riffChunkCreate()
 {
@@ -21,6 +38,20 @@ riffChunk_t riffChunkCreate()
     chunk.subChunks = NULL;
 
     return chunk;
+}
+
+/**************************************************************************************************/
+
+riffError_t riffChunkCreateWithType(riffChunk_t *chunk, riffFormatType_t type)
+{
+    if (type <= RIFF_FMT_TYPE_UNKNOWN || type >= RIFF_FMT_TYPE_LAST) {
+        return RIFF_ERR_PARAM_OUT_OF_RANGE;
+    }
+
+    *chunk = riffChunkCreate();
+    chunk->formatType = type;
+
+    return RIFF_ERR_NONE;
 }
 
 /**************************************************************************************************/

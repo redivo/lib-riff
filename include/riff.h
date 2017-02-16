@@ -21,6 +21,8 @@
  */
 typedef enum {
     RIFF_ERR_NONE = 0,
+    RIFF_ERR_GENERIC = -1,
+    RIFF_ERR_PARAM_OUT_OF_RANGE = -2,
 } riffError_t;
 
 /**
@@ -34,19 +36,47 @@ typedef enum {
     RIFF_FMT_TYPE_RMID,
     RIFF_FMT_TYPE_RMMP,
     RIFF_FMT_TYPE_WAVE,
+
+    RIFF_FMT_TYPE_LAST
 } riffFormatType_t;
+
+/**************************************************************************************************/
+/* RIFF subchunk                                                                                  */
+/**************************************************************************************************/
+
+#define RIFF_SUBCHUNK_ID_LEN 4
 
 /**
  * \biref  RIFF Subchunk generic structure description
  */
 typedef struct {
-    char id[4];    //!< ASCII ID
-    uint32_t size; //!< Payload total size
-    void *payload; //!< Pointer to payload
+    char id[RIFF_SUBCHUNK_ID_LEN]; //!< ASCII ID
+    uint32_t size;                 //!< Payload total size
+    void *payload;                 //!< Pointer to payload
 } riffSubChunk_t;
 
 /**
- * \brief  RUFF main chunk structure description
+ * \brief  Create a RIFF subchunk with an specific ID
+ * \param  id  ID of the RIFF subchunk that will be created
+ * \return Created RIFF subchunk
+ */
+riffSubChunk_t riffSubChunkCreate(const char id[RIFF_SUBCHUNK_ID_LEN]);
+
+/**
+ * \biref  Set the payload into subchunk. If it's already set, override it
+ * \param  subchunk  (out) Subchunk to be filled
+ * \param  payload   (in)  Pointer to data to be stored
+ * \param  size      (in)  Size, in bytes, to be copied from 'payload'
+ * \return RIFF_ERR_NONE on success, error code otherwise
+ */
+riffFormatType_t riffSubchunkSetPayload(riffSubChunk_t *subchunk, void *payload, size_t size);
+
+/**************************************************************************************************/
+/* RIFF chunk                                                                                     */
+/**************************************************************************************************/
+
+/**
+ * \brief  RIFF main chunk structure description
  */
 typedef struct {
     // The RIFF ID is omitted because it's fixed as "RIFF", where 'R' is the
@@ -57,13 +87,19 @@ typedef struct {
     riffSubChunk_t **subChunks;  //!< Array containing pointers to the subchunks
 } riffChunk_t;
 
-/**************************************************************************************************/
-
 /**
  * \brief  Create an empty RIFF chunk
  * \return Created RIFF chunk
  */
 riffChunk_t riffChunkCreate();
+
+/**
+ * \brief  Create a RIFF chunk with an specific type
+ * \param  chunk  (out) Pointer to the RIFF chunk to be filled
+ * \param  type   (in)  Type of the RIFF chunk that will be created
+ * \return RIFF_ERR_NONE on success, error code otherwise
+ */
+riffError_t riffChunkCreateWithType(riffChunk_t *chunk, riffFormatType_t type);
 
 /**
  * \brief  Add a subchunk into a RIFF chunk
