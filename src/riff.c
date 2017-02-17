@@ -24,6 +24,28 @@ riffSubChunk_t riffSubChunkCreate(const char id[RIFF_SUBCHUNK_ID_LEN])
 }
 
 /**************************************************************************************************/
+
+riffFormatType_t riffSubchunkSetPayload(riffSubChunk_t *subchunk, void *payload, size_t size)
+{
+    /* Verify received parameter */
+    if ((size != 0 && payload == NULL) || subchunk == NULL) {
+        return RIFF_ERR_INVALID_PARAM;
+    }
+
+    /* Free memory */
+    if (subchunk->payload != NULL) {
+        free(subchunk->payload);
+    }
+
+    /* Save received memory */
+    subchunk->size = size;
+    subchunk->payload = malloc(size);
+    memcpy(subchunk->payload, payload, size);
+
+    return RIFF_ERR_NONE;
+}
+
+/**************************************************************************************************/
 /* RIFF chunk                                                                                     */
 /**************************************************************************************************/
 

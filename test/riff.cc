@@ -16,7 +16,7 @@ using namespace std;
 
 /**************************************************************************************************/
 
-TEST(CreateSubChunk, CleanSubchunkOK)
+TEST(Subchunk, CreateCleanSubchunkOK)
 {
     riffSubChunk_t subchunk;
 
@@ -28,9 +28,76 @@ TEST(CreateSubChunk, CleanSubchunkOK)
 }
 
 /**************************************************************************************************/
+
+TEST(Subchunk, SetPayloadInvalidPayloadERROR)
+{
+    riffSubChunk_t subchunk;
+    subchunk = riffSubChunkCreate("TEST");
+
+    ASSERT_EQ(riffSubchunkSetPayload(&subchunk, NULL, sizeof(int)), RIFF_ERR_INVALID_PARAM);
+}
+
 /**************************************************************************************************/
 
-TEST(CreateChunk, EmptyChunkOK)
+TEST(Subchunk, SetPayloadInvalidSubchunkERROR)
+{
+    int payload = 5;
+    ASSERT_EQ(riffSubchunkSetPayload(NULL, &payload, sizeof(payload)), RIFF_ERR_INVALID_PARAM);
+}
+
+/**************************************************************************************************/
+
+TEST(Subchunk, SetPayloadFirstTimeOK)
+{
+    riffSubChunk_t subchunk;
+    int payload[3];
+
+    subchunk = riffSubChunkCreate("TEST");
+    payload[0] = 5;
+    payload[1] = 6;
+    payload[2] = 7;
+
+    ASSERT_EQ(riffSubchunkSetPayload(&subchunk, &payload, sizeof(payload)), RIFF_ERR_NONE);
+
+    ASSERT_EQ(subchunk.size, sizeof(int) * 3);
+    ASSERT_EQ(payload[0], ((int *)(subchunk.payload))[0]);
+    ASSERT_EQ(payload[1], ((int *)(subchunk.payload))[1]);
+    ASSERT_EQ(payload[2], ((int *)(subchunk.payload))[2]);
+}
+
+/**************************************************************************************************/
+
+TEST(Subchunk, SetPayloadOverrideTimeOK)
+{
+    riffSubChunk_t subchunk;
+    int payload1[3];
+    int payload2[5];
+
+    subchunk = riffSubChunkCreate("TEST");
+    payload1[0] = 5;
+    payload1[1] = 6;
+    payload1[2] = 7;
+    payload2[0] = 8;
+    payload2[1] = 9;
+    payload2[2] = 10;
+    payload2[3] = 11;
+    payload2[4] = 12;
+
+    ASSERT_EQ(riffSubchunkSetPayload(&subchunk, &payload1, sizeof(payload1)), RIFF_ERR_NONE);
+    ASSERT_EQ(riffSubchunkSetPayload(&subchunk, &payload2, sizeof(payload2)), RIFF_ERR_NONE);
+
+    ASSERT_EQ(subchunk.size, sizeof(int) * 5);
+    ASSERT_EQ(payload2[0], ((int *)(subchunk.payload))[0]);
+    ASSERT_EQ(payload2[1], ((int *)(subchunk.payload))[1]);
+    ASSERT_EQ(payload2[2], ((int *)(subchunk.payload))[2]);
+    ASSERT_EQ(payload2[3], ((int *)(subchunk.payload))[3]);
+    ASSERT_EQ(payload2[4], ((int *)(subchunk.payload))[4]);
+}
+
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+TEST(Chunk, CreateEmptyChunkOK)
 {
     riffChunk_t chunk;
 
@@ -44,7 +111,7 @@ TEST(CreateChunk, EmptyChunkOK)
 
 /**************************************************************************************************/
 
-TEST(CreateChunk, ChunkWithTypeOK)
+TEST(Chunk, CreateChunkWithTypeOK)
 {
     riffChunk_t chunk;
 
@@ -60,7 +127,7 @@ TEST(CreateChunk, ChunkWithTypeOK)
 
 /**************************************************************************************************/
 
-TEST(CreateChunk, ChunkWithInvalidTypesERRE)
+TEST(Chunk, CreateChunkWithInvalidTypesERROR)
 {
     riffChunk_t chunk;
     riffSubChunk_t **nullPointer = NULL;
@@ -68,6 +135,26 @@ TEST(CreateChunk, ChunkWithInvalidTypesERRE)
     ASSERT_EQ(riffChunkCreateWithType(&chunk, RIFF_FMT_TYPE_UNKNOWN), RIFF_ERR_PARAM_OUT_OF_RANGE);
     ASSERT_EQ(riffChunkCreateWithType(&chunk, RIFF_FMT_TYPE_LAST), RIFF_ERR_PARAM_OUT_OF_RANGE);
     ASSERT_EQ(riffChunkCreateWithType(&chunk, (riffFormatType_t)-1), RIFF_ERR_PARAM_OUT_OF_RANGE);
+}
+
+/**************************************************************************************************/
+
+TEST(Chunk, AddOneSubchunkOK)
+{
+    riffChunk_t chunk;
+    ASSERT_EQ(riffChunkCreateWithType(&chunk, RIFF_FMT_TYPE_WAVE), RIFF_ERR_NONE);
+
+    /* Create the subchunk */
+    riffSubChunk_t subchunk;
+    subchunk = riffSubChunkCreate("TEST");
+    int payload[3];
+    payload[0] = 5;
+    payload[1] = 6;
+    payload[2] = 7;
+    ASSERT_EQ(riffSubchunkSetPayload(&subchunk, &payload, sizeof(payload)), RIFF_ERR_NONE);
+
+    /* Add the subchunk into the chunk */
+    ASSERT_EQ(riffAddSubchunk(&chunk, subchunk), RIFF_ERR_NONE);
 }
 
 /**************************************************************************************************/

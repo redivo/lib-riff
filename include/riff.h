@@ -23,6 +23,7 @@ typedef enum {
     RIFF_ERR_NONE = 0,
     RIFF_ERR_GENERIC = -1,
     RIFF_ERR_PARAM_OUT_OF_RANGE = -2,
+    RIFF_ERR_INVALID_PARAM = -3,
 } riffError_t;
 
 /**
@@ -63,7 +64,7 @@ typedef struct {
 riffSubChunk_t riffSubChunkCreate(const char id[RIFF_SUBCHUNK_ID_LEN]);
 
 /**
- * \biref  Set the payload into subchunk. If it's already set, override it
+ * \biref  Set the payload (copying content) into subchunk. If it's already set, override it
  * \param  subchunk  (out) Subchunk to be filled
  * \param  payload   (in)  Pointer to data to be stored
  * \param  size      (in)  Size, in bytes, to be copied from 'payload'
