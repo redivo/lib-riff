@@ -1,17 +1,22 @@
 ####################################################################################################
-## General
+## Packages
 ####################################################################################################
-cmake_minimum_required (VERSION 2.8.11)
-project (LibRiff)
+find_package (GTest REQUIRED)
+find_package (Threads REQUIRED)
 
 ####################################################################################################
-## Sets
+## Includes
 ####################################################################################################
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set (INCLUDE_DIR_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories (${INCLUDE_DIR_SRC})
 
 ####################################################################################################
-## Subdirectories
+## Build test
 ####################################################################################################
-add_subdirectory (src)
-add_subdirectory (test)
+add_executable (test
+    riff.cc
+)
+target_link_libraries (test
+    riff
+    ${GTEST_BOTH_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+)
